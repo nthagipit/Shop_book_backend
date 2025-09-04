@@ -67,4 +67,9 @@ public class BookService implements IBookService {
         return bookMapper.toDTO(book);
     }
 
+    @Override
+    public Book getBook(int bookID) {
+        return bookRepository.findById(bookID).orElseThrow(()->new AppException(ErrorCode.BOOK_NOT_FOUND));
+    }
+
 }

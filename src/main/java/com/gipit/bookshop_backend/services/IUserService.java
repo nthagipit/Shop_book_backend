@@ -14,4 +14,5 @@ public interface IUserService {
     void sendEmailVerification(String to, String activeCode);
     boolean activeAccount(String activeCode);
     User updateUser(int userID,UpdateUserRequest updateUserRequest);
+    User getUserById(int userID);
 }

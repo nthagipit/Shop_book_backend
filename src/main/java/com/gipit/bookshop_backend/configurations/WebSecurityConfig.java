@@ -58,6 +58,8 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                                 .requestMatchers(String.format("%s/auth/oauth2/**",apiPrefix)).permitAll()
                                 .requestMatchers("/oauth2/**", "/login/oauth2/**", "/error","/images/**").permitAll()
                                 .requestMatchers(HttpMethod.GET,String.format("%s/books/**",apiPrefix),
+                                                                String.format("%s/carts/**",apiPrefix),
+                                                                String.format("%s/cartd-etails/**",apiPrefix),
                                                                 String.format("%s/users/active/**",apiPrefix)).permitAll()
                                 .anyRequest().authenticated()
 

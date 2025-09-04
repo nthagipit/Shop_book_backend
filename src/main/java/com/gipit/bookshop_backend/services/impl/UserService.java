@@ -11,6 +11,7 @@ import com.gipit.bookshop_backend.repositories.UserRepository;
 import com.gipit.bookshop_backend.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -119,6 +120,11 @@ public class UserService implements IUserService,UserDetailsService {
         user.setPurchaseAddress(updateUserRequest.getPurchaseAddress());
 
         return userRepository.save(user);
+    }
+
+    @Override
+    public User getUserById(int userID) {
+        return userRepository.findUserByUserID(userID);
     }
 
 

@@ -1,13 +1,15 @@
 package com.gipit.bookshop_backend.models;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Data
 @ToString(exclude = {"book", "cart"})
 @Table(name="cartdetails")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CartDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
