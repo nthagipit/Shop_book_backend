@@ -57,10 +57,14 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                                 .requestMatchers(HttpMethod.POST,getPublicPostEndpoints()).permitAll()
                                 .requestMatchers(String.format("%s/auth/oauth2/**",apiPrefix)).permitAll()
                                 .requestMatchers("/oauth2/**", "/login/oauth2/**", "/error","/images/**").permitAll()
+
                                 .requestMatchers(HttpMethod.GET,String.format("%s/books/**",apiPrefix),
-                                                                String.format("%s/carts/**",apiPrefix),
-                                                                String.format("%s/cartd-etails/**",apiPrefix),
                                                                 String.format("%s/users/active/**",apiPrefix)).permitAll()
+
+                                .requestMatchers(HttpMethod.GET,String.format("%s/carts/**",apiPrefix),
+                                                                String.format("%s/cartd-details/**",apiPrefix)).hasRole("USER")
+
+                                .requestMatchers(HttpMethod.POST, String.format("%s/orders/**",apiPrefix)).hasRole("USER")
                                 .anyRequest().authenticated()
 
                 )

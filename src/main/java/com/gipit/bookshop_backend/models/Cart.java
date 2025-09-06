@@ -27,7 +27,7 @@ public class Cart {
     private String purchaseAddress;
     @Column(name="delivery_address",length=512)
     private String deliveryAddress;
-    @OneToMany(mappedBy = "cart",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "cart",fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartDetails> listCartDetails;
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE,CascadeType.REFRESH, CascadeType.DETACH})
     @JoinColumn(name="user_id")

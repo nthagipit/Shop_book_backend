@@ -27,6 +27,7 @@ public enum ErrorCode {
     PHONENUMBER_INVALID(1016,"Phone number is invalid",HttpStatus.BAD_REQUEST),
     NAME_INVALID(1017,"Name is invalid",HttpStatus.BAD_REQUEST),
     USERNAME_OR_PASSWORD_INVALID(1018,"Username or password is invalid",HttpStatus.BAD_REQUEST),
+    PROCCED_DELIVERY_NOT_FOUND(1019,"Processed delivery not found",HttpStatus.BAD_REQUEST),
     ;
 
 

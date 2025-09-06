@@ -11,8 +11,10 @@ import com.gipit.bookshop_backend.models.Cart;
 import com.gipit.bookshop_backend.models.CartDetails;
 import com.gipit.bookshop_backend.repositories.CartDetailsRepository;
 import com.gipit.bookshop_backend.services.ICartDetailService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CartDetailService implements ICartDetailService {
@@ -56,6 +58,7 @@ public class CartDetailService implements ICartDetailService {
     }
 
     @Override
+    @Transactional
     public boolean deleteCartDetail(int cartDetailsId) {
         if(cartDetailsRepository.existsById(cartDetailsId)){
             cartDetailsRepository.deleteById(cartDetailsId);

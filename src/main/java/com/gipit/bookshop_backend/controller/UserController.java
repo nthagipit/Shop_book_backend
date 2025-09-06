@@ -5,10 +5,12 @@ import com.gipit.bookshop_backend.dto.request.UpdateUserRequest;
 import com.gipit.bookshop_backend.dto.response.ApiResponse;
 import com.gipit.bookshop_backend.dto.response.UserResponse;
 import com.gipit.bookshop_backend.models.User;
+import com.gipit.bookshop_backend.models.UserPrincipal;
 import com.gipit.bookshop_backend.services.impl.UserService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,9 +31,9 @@ public class UserController {
                 .data(modelMapper.map(user, UserResponse.class))
                 .build();
     }
-    @PostMapping("/update/{userID}")
-    public ApiResponse<UserResponse> updateInformationUser(@PathVariable int userID,@RequestBody @Valid UpdateUserRequest updateUserRequest){
-            User user=userService.updateUser(userID,updateUserRequest);
+    @PostMapping("/update")
+    public ApiResponse<UserResponse> updateInformationUser(@AuthenticationPrincipal UserPrincipal userPrincipal, @RequestBody @Valid UpdateUserRequest updateUserRequest){
+            User user=userService.updateUser(userPrincipal.getUser().getUserID(), updateUserRequest);
             return ApiResponse.<UserResponse>builder()
                     .message("Update sucess")
                     .data(modelMapper.map(user, UserResponse.class))
