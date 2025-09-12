@@ -18,4 +18,9 @@ public class RoleService implements IRoleService {
     public Role findRoleById(int id) {
         return roleRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.ROLE_NOT_FOUND));
     }
+
+    @Override
+    public Role findRoleByRoleName(String roleName) {
+        return roleRepository.findByRoleName(roleName).orElseThrow(()->new AppException(ErrorCode.ROLE_NOT_FOUND));
+    }
 }

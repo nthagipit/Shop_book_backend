@@ -4,45 +4,64 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.gipit.bookshop_backend.dto.request.CreateUserRequest;
 import com.gipit.bookshop_backend.dto.response.UserResponse;
-import com.gipit.bookshop_backend.exception.AppException;
-import com.gipit.bookshop_backend.exception.ErrorCode;
+import com.gipit.bookshop_backend.models.Role;
 import com.gipit.bookshop_backend.models.User;
-import com.gipit.bookshop_backend.services.impl.UserService;
+import com.gipit.bookshop_backend.repositories.RoleRepository;
+import com.gipit.bookshop_backend.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Slf4j
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource("/test.properties")
-public class UserControllerTest {
+@Testcontainers
+public class UserControllerIntegrationTest {
+
+    @Container
+    static final MySQLContainer<?> mysqlContainer = new MySQLContainer<>("mysql:8.0.36");
+    @Autowired
+    private UserRepository userRepository;
+
+    @DynamicPropertySource
+    static void configureDatasource(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", mysqlContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", mysqlContainer::getUsername);
+        registry.add("spring.datasource.password", mysqlContainer::getPassword);
+        registry.add("spring.datasource.driver-class-name",()->"com.mysql.cj.jdbc.Driver");
+        registry.add("spring.jpa.hibernate.ddl-auto",()->"update");
+    }
 
     @Value("${api.prefix}")
     private String apiPrefix;
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private UserService userService;
+    @Autowired
+    private RoleRepository roleRepository;
 
     private CreateUserRequest createUserRequest;
     private UserResponse userResponse;
     private User mockUser;
     @BeforeEach
     void initData(){
+        if (roleRepository.findByRoleName("USER").isEmpty()) {
+            roleRepository.save(Role.builder().roleName("USER").build());
+        }
         createUserRequest = CreateUserRequest.builder()
                 .lastName("Tho")
                 .firstName("Ha")
@@ -56,29 +75,43 @@ public class UserControllerTest {
                 .build();
 
     }
-
+    @AfterEach
+    void cleanUp() {
+        userRepository.deleteAll();
+    }
     @Test
     void creatUser_validRequest_success() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String content =objectMapper.writeValueAsString(createUserRequest);
 
-        Mockito.when(userService.createUser(ArgumentMatchers.any())).thenReturn(mockUser);
 
-        mockMvc.perform(MockMvcRequestBuilders.post(apiPrefix+"/users")
+        var response=mockMvc.perform(MockMvcRequestBuilders.post(apiPrefix+"/users")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(content))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("code").value("0"))
-                .andExpect(MockMvcResultMatchers.jsonPath("message").value("Create success"));
+                .andExpect(MockMvcResultMatchers.jsonPath("message").value("Create success"))
+                .andExpect(MockMvcResultMatchers.jsonPath("data.username").value("thohagipit1"));
+            log.info("Result:{}",response.andReturn().getResponse().getContentAsString());
 
     }
     @Test
     void createUser_userExisted_fail() throws Exception {
+        if (roleRepository.findByRoleName("USER").isEmpty()) {
+            roleRepository.save(Role.builder().roleName("USER").build());
+        }
+        User userExisted= User.builder()
+                .username("thohagipit1")
+                .email("thoha2008200412@gmail.com")
+                .lastName("Tho")
+                .firstName("Ha")
+                .password("nguyenthoha20041")
+                .build();
+        userRepository.save(userExisted);
         ObjectMapper objectMapper= new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         String content=objectMapper.writeValueAsString(createUserRequest);
-        Mockito.when(userService.createUser(ArgumentMatchers.any())).thenThrow(new AppException(ErrorCode.USER_EXISTS));
 
         mockMvc.perform(MockMvcRequestBuilders.post(apiPrefix+"/users").contentType(MediaType.APPLICATION_JSON_VALUE).content(content))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())

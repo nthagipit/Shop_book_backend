@@ -11,7 +11,6 @@ import com.gipit.bookshop_backend.repositories.UserRepository;
 import com.gipit.bookshop_backend.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -72,7 +70,7 @@ public class UserService implements IUserService,UserDetailsService {
         if(userRepository.existsByEmail(createUserRequest.getEmail())){
             throw new AppException(ErrorCode.EMAIL_EXISTS);
         }
-        Role list= roleService.findRoleById(3);
+        Role list= roleService.findRoleByRoleName("USER");
         String activationCode= UUID.randomUUID().toString();
         User user= new User();
         user.setUsername(createUserRequest.getUsername());
